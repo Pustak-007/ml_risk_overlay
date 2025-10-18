@@ -4,8 +4,10 @@ import wrds
 import os
 import pandas as pd
 from pathlib import Path
+from fredapi import Fred    
+import numpy as np 
 
-
+fred = Fred(api_key = '23dd8644a8456a82f3dc0e07c51e2a9b')
 # This function needs the db connection too!
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 def give_secid_data(ticker, db_connection): # <-- Add db_connection parameter
@@ -45,11 +47,19 @@ def give_raw_data(ticker, db_connection, end_date = None, start_date = None) -> 
     data_df = db_connection.raw_sql(final_query)
     return data_df
 
+#Note that I got the vvix data from CBOE website and stored it in my local machine
+#The website is: https://www.cboe.com/tradable_products/vix/vix_historical_data/
+
 def give_raw_vvix_data():
     raw_vvix_data = pd.read_csv('/Users/pustak/Downloads/VVIX_History.csv')
     return raw_vvix_data
 
 vvix_daily_raw_data = give_raw_vvix_data()
+
+
+def give_raw_fred_data(series_id):
+    data = fred.get_series(series_id)
+    return data 
 
 def store_raw_data(data:pd.DataFrame, name:str):
     project_folder_path =  PROJECT_ROOT
@@ -66,3 +76,4 @@ def load_raw_data(file_name: str):
     data_containing_file_path = os.path.join(PROJECT_ROOT, "data", "raw", file_name)
     raw_data = pd.read_csv(data_containing_file_path)
     return raw_data
+
